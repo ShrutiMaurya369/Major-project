@@ -203,14 +203,3 @@ def evaluate(expected, response):
     return rounded_score
 ```
 
-## Contributing 🤝
-
-We welcome contributions from the community! Please fork the repository and submit pull requests for any enhancements or bug fixes.
-
-## License 📝
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-Thank you for checking out the Answer Evaluation System! If you have any questions or feedback, please feel free to reach out. Happy coding! 🚀
