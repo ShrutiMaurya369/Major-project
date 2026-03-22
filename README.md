@@ -2,8 +2,6 @@
 
 Welcome to the **Answer Evaluation System** repository! This project leverages advanced **Machine Learning (ML)** and **Natural Language Processing (NLP)** techniques to accurately evaluate student answers. Our system achieves an impressive accuracy rate of 89%. Below, you'll find detailed information on the project, including setup instructions, an overview of ML and NLP, and the technologies used.
 
-![Project Screenshot](screenshot/preview.gif)
-
 ## Table of Contents
 
 - [What is Machine Learning?](#what-is-machine-learning)
