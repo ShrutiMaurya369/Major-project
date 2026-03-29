@@ -3,52 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Take Test</title>
-    <!-- Bootstrap CSS -->
+    <title>Take Test — AES_ai</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background-color: #1a1a2e; color: #eee; }
+        .navbar { background-color: #16213e !important; }
+        .navbar-brand, .nav-link { color: #e0e0e0 !important; }
+        .nav-link:hover { color: #a78bfa !important; }
+
+        .test-header {
+            background: linear-gradient(135deg, #16213e, #0f3460);
+            border-left: 4px solid #a78bfa;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+        }
+        .test-header h2 { margin: 0; font-size: 1.6rem; color: #fff; }
+        .test-header p  { margin: 6px 0 0; color: #a0a0c0; font-size: 0.9rem; }
+
+        .question-card {
+            background: #16213e;
+            border: 1px solid #2d2d5e;
+            border-radius: 10px;
+            margin-bottom: 22px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .question-card:hover { border-color: #a78bfa; }
+
+        .question-header {
+            background: #0f3460;
+            padding: 12px 20px;
+            font-size: 0.8rem;
+            color: #a78bfa;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .question-body { padding: 20px; }
+        .question-text { font-size: 1.05rem; color: #e0e0e0; margin-bottom: 16px; line-height: 1.6; }
+
+        textarea.answer-box {
+            background: #0d0d1a;
+            border: 1.5px solid #2d2d5e;
+            border-radius: 8px;
+            color: #e0e0e0;
+            width: 100%;
+            min-height: 100px;
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        textarea.answer-box:focus { border-color: #a78bfa; box-shadow: 0 0 0 3px rgba(167,139,250,0.15); }
+        textarea.answer-box::placeholder { color: #555; }
+
+        .submit-bar {
+            background: #16213e;
+            border: 1px solid #2d2d5e;
+            border-radius: 10px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .submit-bar span { color: #888; font-size: 0.9rem; }
+        .btn-submit {
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            border: none;
+            color: #fff;
+            padding: 10px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn-submit:hover  { opacity: 0.9; transform: translateY(-1px); }
+        .btn-submit:active { transform: translateY(0); }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .empty-state i { font-size: 3rem; margin-bottom: 16px; color: #333; }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Student Panel</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <div class="container mt-5">
-        <h2>Take Test</h2>
-        <form method="POST" action="#">
-            {% for question in questions %}
-            <div class="card mt-4 bg-dark text-light"> <!-- Added bg-dark and text-light for dark theme -->
-                <div class="card-header">
-                    Question ID: {{ question[0] }}
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Question:</h5>
-                    <p class="card-text">{{ question[1] }}</p>
-                    <div class="form-group">
-                        <label for="answer{{ question[0] }}" class="text-light">Your Answer:</label> <!-- Added text-light for dark theme -->
-                        <input type="text" class="form-control bg-dark text-light" id="answer{{ question[0] }}" name="question_{{ question[0] }}" placeholder="Your Answer" required> <!-- Added bg-dark and text-light for dark theme -->
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary mt-3">Submit Answers</button>
-        </form>
-        
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="{{ url_for('student_home') }}">AES_ai</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('student_home') }}">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('student_take_test') }}">Tests</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('student_view_score') }}">My Scores</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('student_logout') }}">Logout</a></li>
+        </ul>
     </div>
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</nav>
+
+<div class="container py-4">
+
+    <div class="test-header">
+        <h2>📝 Answer the Questions</h2>
+        <p>Write your answers in the boxes below. All fields are required before submitting.</p>
+    </div>
+
+    {% if questions %}
+    <form method="POST" action="/submit_answers">
+        <input type="hidden" name="test_id" value="{{ test_id }}">
+
+        {% for question in questions %}
+        <div class="question-card">
+            <div class="question-header">Question {{ loop.index }} of {{ questions|length }}</div>
+            <div class="question-body">
+                <div class="question-text">{{ question[1] }}</div>
+                <textarea
+                    name="answer_{{ question[0] }}"
+                    class="answer-box"
+                    placeholder="Write your answer here…"
+                    required
+                ></textarea>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="submit-bar">
+            <span>{{ questions|length }} question(s) — all required</span>
+            <button type="submit" class="btn-submit">Submit Answers</button>
+        </div>
+    </form>
+
+    {% else %}
+    <div class="empty-state">
+        <div>📭</div>
+        <h5 style="color:#aaa; margin-top:12px;">No questions found for this test.</h5>
+        <a href="{{ url_for('student_take_test') }}" style="color:#a78bfa;">← Back to tests</a>
+    </div>
+    {% endif %}
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
