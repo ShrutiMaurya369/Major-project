@@ -3,91 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Home</title>
+    <title>Teacher Home — AES_ai</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
+
+        /* Navbar */
+        .navbar { background: #1e293b !important; border-bottom: 1px solid #334155; }
+        .navbar-brand { color: #a78bfa !important; font-weight: 700; font-size: 1.2rem; }
+        .nav-link { color: #cbd5e1 !important; }
+        .nav-link:hover { color: #a78bfa !important; }
+
+        /* Page header */
+        .page-header {
+            margin: 30px 0 24px;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-left: 4px solid #a78bfa;
+            border-radius: 10px;
+        }
+        .page-header h2 { margin: 0; color: #f1f5f9; font-size: 1.6rem; }
+        .page-header small { color: #94a3b8; font-size: 0.9rem; }
+
+        /* Add test form */
+        .add-test-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 22px 24px;
+            margin-bottom: 28px;
+        }
+        .add-test-card label { color: #a78bfa; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .add-test-card .form-control {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            border-radius: 8px;
+            height: 44px;
+        }
+        .add-test-card .form-control:focus { border-color: #a78bfa; box-shadow: 0 0 0 2px rgba(167,139,250,0.2); background: #0f172a; color: #e2e8f0; }
+        .add-test-card .form-control::placeholder { color: #475569; }
+
+        /* Tests list */
+        .tests-section h4 { color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
+
+        .test-item {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .test-item:hover { border-color: #a78bfa; background: #1a2744; }
+
+        .test-name-link {
+            color: #e2e8f0;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            flex: 1;
+        }
+        .test-name-link:hover { color: #a78bfa; text-decoration: none; }
+
+        .test-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+        .btn-edit   { background: #0369a1; border: none; color: #fff; padding: 6px 16px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
+        .btn-delete { background: #b91c1c; border: none; color: #fff; padding: 6px 16px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
+        .btn-edit:hover   { background: #0284c7; color: #fff; }
+        .btn-delete:hover { background: #dc2626; color: #fff; }
+
+        .btn-add {
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            border: none;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-add:hover { opacity: 0.9; }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #475569;
+        }
+        .empty-state div { font-size: 2.5rem; margin-bottom: 12px; }
+
+        /* Score link */
+        .score-btn {
+            background: #065f46;
+            color: #6ee7b7 !important;
+            border-radius: 6px;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .score-btn:hover { background: #047857; text-decoration: none; }
+
+        /* Modal */
+        .modal-content { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; border-radius: 12px; }
+        .modal-header  { border-bottom: 1px solid #334155; }
+        .modal-footer  { border-top: 1px solid #334155; }
+        .modal-title   { color: #a78bfa; }
+        .modal .form-control { background: #0f172a; border-color: #334155; color: #e2e8f0; border-radius: 8px; }
+        .modal .form-control:focus { border-color: #a78bfa; box-shadow: none; background: #0f172a; color: #e2e8f0; }
+        .close { color: #94a3b8; }
+        .btn-save { background: #7c3aed; border: none; color: #fff; border-radius: 6px; padding: 8px 20px; }
+        .btn-save:hover { background: #6d28d9; }
+    </style>
 </head>
 <body>
-    
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="{{ url_for('teacher_home') }}">Teacher Panel</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('teacher_home') }}">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('teacher_view_score') }}">Score <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('teacher_logout') }}">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
 
-    <div class="container">
-        <h2 class="mt-5">Welcome, Teacher!</h2>
-        
-        <!-- Add Test Name Form -->
-        <form method="POST" action="{{ url_for('teacher_home') }}" class="mt-4 mb-3">
-            <div class="input-group">
-                <input type="text" name="test_name" class="form-control" placeholder="Enter Test Name" required>
-                <div class="input-group-append">
-                    <button type="submit" name="add_test_name" class="btn btn-primary">Add Test</button>
-                </div>
-            </div>
-            
-        </form>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="{{ url_for('teacher_home') }}">AES_ai</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('teacher_home') }}">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('teacher_view_score') }}">Student Scores</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('teacher_logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
 
-        <!-- Tests List -->
-        <h3 class="mt-4">Your Tests:</h3>
-        
-<ul class="list-group bg-dark"> <!-- Add bg-dark class for dark background -->
-    {% for test in tests %}
-        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white"> <!-- Add bg-dark and text-white classes for dark theme -->
-            <a href="{{ url_for('view_teacher_test_questions', test_id=test[0]) }}" class="text-white">{{ test[1] }}</a> <!-- Add text-white class for light text -->
+<div class="container py-2">
 
-            <div class="btn-group">
-                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#editTestModal{{ test[0] }}">Edit</button>
-                <form method="POST" action="{{ url_for('teacher_home') }}" class="ml-1">
-                    <input type="hidden" name="test_id" value="{{ test[0] }}">
-                    <button type="submit" name="delete_test_name" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </li>
-
-        <!-- Edit Test Name Modal -->
-        <div class="modal fade" id="editTestModal{{ test[0] }}" tabindex="-1" role="dialog" aria-labelledby="editTestModalLabel{{ test[0] }}" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dark"> <!-- Add modal-dark class for dark theme -->
-                <div class="modal-content bg-dark text-white"> <!-- Add bg-dark and text-white classes for dark theme -->
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editTestModalLabel{{ test[0] }}">Edit Test Name</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form method="POST" action="{{ url_for('teacher_home') }}">
-                            <input type="hidden" name="test_id" value="{{ test[0] }}">
-                            <div class="form-group">
-                                <input type="text" name="updated_test_name" class="form-control bg-dark text-white" value="{{ test[1] }}" required> <!-- Add bg-dark and text-white classes for dark theme -->
-                            </div>
-                            <button type="submit" name="update_test_name" class="btn btn-primary">Save Changes</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
-</ul>
+    <div class="page-header">
+        <h2>👩‍🏫 Teacher Dashboard</h2>
+        <small>Manage your tests and questions from here.</small>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Add Test -->
+    <div class="add-test-card">
+        <label>Create New Test</label>
+        <form method="POST" action="{{ url_for('teacher_home') }}" class="form-row align-items-end mt-2">
+            <div class="col-md-8 mb-2">
+                <input type="text" name="test_name" class="form-control" placeholder="Enter test name…" required>
+            </div>
+            <div class="col-md-4 mb-2">
+                <button type="submit" name="add_test_name" class="btn-add btn-block">+ Add Test</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tests List -->
+    <div class="tests-section">
+        <h4>Your Tests ({{ tests|length }})</h4>
+
+        {% if tests %}
+            {% for test in tests %}
+            <div class="test-item">
+                <a href="{{ url_for('view_teacher_test_questions', test_id=test[0]) }}" class="test-name-link">
+                    📋 {{ test[1] }}
+                </a>
+                <div class="test-actions">
+                    <button class="btn-edit" data-toggle="modal" data-target="#editTestModal{{ test[0] }}">Edit</button>
+
+                    <form method="POST" action="{{ url_for('teacher_home') }}" style="display:inline;">
+                        <input type="hidden" name="test_id" value="{{ test[0] }}">
+                        <button type="submit" name="delete_test_name" class="btn-delete"
+                                onclick="return confirm('Delete test and all its questions?')">Delete</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editTestModal{{ test[0] }}" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">✏️ Edit Test Name</h5>
+                            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="POST" action="{{ url_for('teacher_home') }}">
+                                <input type="hidden" name="test_id" value="{{ test[0] }}">
+                                <div class="form-group">
+                                    <label style="color:#94a3b8; font-size:0.85rem;">Test Name</label>
+                                    <input type="text" name="updated_test_name" class="form-control" value="{{ test[1] }}" required>
+                                </div>
+                                <button type="submit" name="update_test_name" class="btn-save">Save Changes</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        {% else %}
+        <div class="empty-state">
+            <div>📂</div>
+            <p>No tests yet. Create your first test above.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
