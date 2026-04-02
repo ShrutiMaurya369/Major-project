@@ -3,137 +3,372 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student View Scores</title>
+    <title>My Scores — AES_ai</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* Skeleton Loader CSS */
-        @keyframes loading {
-            40% {
-                background-position: 100% 0;
-            }
-            100% {
-                background-position: 100% 0;
-            }
+        body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
+
+        .navbar { background: #1e293b !important; border-bottom: 1px solid #334155; }
+        .navbar-brand { color: #a78bfa !important; font-weight: 700; }
+        .nav-link { color: #cbd5e1 !important; }
+        .nav-link:hover { color: #a78bfa !important; }
+
+        .page-header {
+            margin: 28px 0 20px;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-left: 4px solid #a78bfa;
+            border-radius: 10px;
+        }
+        .page-header h2 { margin: 0; color: #f1f5f9; }
+        .page-header small { color: #94a3b8; font-size: 0.9rem; }
+
+        .test-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .test-card:hover { border-color: #a78bfa; }
+
+        .test-card-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #334155;
+            background: #16213e;
+        }
+        .test-card-header h5 { margin: 0; color: #e2e8f0; font-size: 1.05rem; font-weight: 600; }
+
+        .total-badge {
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 5px 16px;
+            border-radius: 20px;
+        }
+        .total-high { background: #065f46; color: #6ee7b7; }
+        .total-mid  { background: #78350f; color: #fcd34d; }
+        .total-low  { background: #450a0a; color: #fca5a5; }
+
+        .test-summary {
+            padding: 12px 20px;
+            background: #0f172a;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            gap: 24px;
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+        .test-summary span { color: #94a3b8; }
+        .test-summary strong { color: #cbd5e1; }
+
+        .test-card-body { padding: 0; }
+
+        .q-row {
+            padding: 18px 20px;
+            border-bottom: 1px solid #1e293b;
+            background: #0f172a;
+        }
+        .q-row:last-child { border-bottom: none; }
+        .q-row:nth-child(even) { background: #111827; }
+
+        .q-number {
+            font-size: 0.7rem;
+            color: #a78bfa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .q-text {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            font-weight: 500;
+            line-height: 1.5;
         }
 
-        .loading .bar {
-            background-color: #E7E7E7;
-            height: 14px;
-            border-radius: 7px;
-            width: 80%;
+        .answer-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 640px) { .answer-cols { grid-template-columns: 1fr; } }
+
+        .answer-block {
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .answer-expected { background: #0f2744; border: 1px solid #1e3a5f; }
+        .answer-student  { background: #1a1a2e; border: 1px solid #2d2d5e; }
+        .answer-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .label-expected { color: #60a5fa; }
+        .label-student  { color: #a78bfa; }
+        .answer-text { color: #cbd5e1; }
+
+        .score-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-top: 4px;
         }
 
-        .loading:after {
-            position: absolute;
-            transform: translateY(-50%);
-            top: 50%;
-            left: 0;
-            content: "";
-            display: block;
-            width: 100%;
-            height: 24px;
-            background-image: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5) 60%, rgba(255, 255, 255, 0) 80%);
-            background-size: 200px 24px;
-            background-position: -100px 0;
-            background-repeat: no-repeat;
-            animation: loading 1s infinite;
+        .score-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 1.05rem;
+            flex-shrink: 0;
         }
+        .score-10 { background: #065f46; color: #6ee7b7; border: 2px solid #10b981; }
+        .score-hi { background: #065f46; color: #6ee7b7; }
+        .score-md { background: #78350f; color: #fcd34d; }
+        .score-lo { background: #4c1d1d; color: #fca5a5; }
+        .score-0  { background: #1e293b; color: #6b7280; border: 1px solid #334155; }
+
+        .score-right { flex: 1; }
+        .score-bar-wrap {
+            height: 8px;
+            background: #1e293b;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            overflow: hidden;
+        }
+        .score-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+        .bar-10 { background: linear-gradient(90deg, #10b981, #6ee7b7); }
+        .bar-hi { background: #10b981; }
+        .bar-md { background: #f59e0b; }
+        .bar-lo { background: #ef4444; }
+        .bar-0  { background: #374151; }
+
+        .score-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+        }
+        .score-label .verdict {
+            font-weight: 600;
+        }
+        .verdict-excellent { color: #6ee7b7; }
+        .verdict-good      { color: #86efac; }
+        .verdict-partial   { color: #fcd34d; }
+        .verdict-weak      { color: #fca5a5; }
+        .verdict-zero      { color: #6b7280; }
+
+        .no-tests {
+            text-align: center;
+            padding: 60px 20px;
+            color: #475569;
+        }
+        .no-tests div { font-size: 3rem; margin-bottom: 12px; }
+
+        .retake-btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 8px 20px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #a78bfa;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .retake-btn:hover { background: #253047; color: #a78bfa; text-decoration: none; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark"> <!-- Change navbar-light to navbar-dark and bg-light to bg-dark -->
-        <a class="navbar-brand" href="{{ url_for('student_home') }}">Student Panel</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('student_take_test') }}">Take Test</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('student_view_score') }}">Check Scores</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('student_logout') }}">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
-<div class="container my-5">
-    <h1 class="text-center mb-4">Student Scores</h1>
-    <div class="row">
-        {% for test_score in student_scores %}
-        <div class="col-md-6 mb-4">
-    <div class="card bg-dark text-white"> <!-- Add bg-dark and text-white classes for dark theme -->
-        <div class="card-body">
-            <h5 class="card-title">{{ test_score.test_name }}</h5>
-            <p class="card-text">Total Score: {{ test_score.total_score }}</p>
-            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#testModal-{{ test_score.test_id }}">
-                View Scores
-            </button>
-        </div>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="{{ url_for('student_home') }}">AES_ai</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('student_home') }}">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('student_take_test') }}">Take Test</a></li>
+            <li class="nav-item"><a class="nav-link active" href="{{ url_for('student_view_score') }}">My Scores</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('student_logout') }}">Logout</a></li>
+        </ul>
     </div>
-</div>
-        <!-- Modal -->
-<div class="modal fade" id="testModal-{{ test_score.test_id }}" tabindex="-1" role="dialog" aria-labelledby="testModalLabel-{{ test_score.test_id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="testModalLabel-{{ test_score.test_id }}">{{ test_score.test_name }} Scores</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+</nav>
+
+<div class="container py-4">
+
+    <div class="page-header">
+        <h2>📊 My Results</h2>
+        <small>AI-evaluated scores using 9-technique NLP analysis.</small>
+    </div>
+
+    {% set ns = namespace(has_scores=false) %}
+
+    {% for test_score in student_scores %}
+        {% set ns.has_scores = true %}
+
+        {% set parts = test_score.total_score.split(' / ') %}
+        {% set got = parts[0]|int %}
+        {% set max = parts[1]|int if parts|length > 1 else 10 %}
+        {% set pct = (got / max * 100)|int if max > 0 else 0 %}
+        {% set num_questions = test_score.scores|length %}
+
+        <div class="test-card">
+            <div class="test-card-header">
+                <h5>📋 {{ test_score.test_name }}</h5>
+                <span class="total-badge
+                    {% if pct >= 70 %}total-high
+                    {% elif pct >= 40 %}total-mid
+                    {% else %}total-low{% endif %}">
+                    {{ test_score.total_score }} &nbsp;({{ pct }}%)
+                </span>
             </div>
-            <div class="modal-body">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Question</th>
-                <th>Expected Answer</th>
-                <th>Student Answer</th>
-                <th>Score</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Display score data -->
-            {% for score in test_score.scores %}
-            <tr class="bg-dark text-white">
-                <td>{{ score.question }}</td>
-                <td>{{ score.expected_answer }}</td>
-                <td>{{ score.student_answer }}</td>
-                <td>
-                    {% if score.score < 5 %}
-                        <span style="font-weight: bold; color: red;">F</span>
-                    {% else %}
-                        {{ score.score }}
-                    {% endif %}
-                </td> <!-- Apply dark theme to the score data -->
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-        </div>
-    </div>
-</div>
-<!-- End Modal -->
 
-        {% endfor %}
+            <div class="test-summary">
+                <span>Questions: <strong>{{ num_questions }}</strong></span>
+                <span>Total: <strong>{{ got }} / {{ max }}</strong></span>
+                <span>Average: <strong>{{ (got / num_questions)|round(1) if num_questions > 0 else 0 }} / 10</strong></span>
+                <span>Grade:
+                    <strong>
+                        {% if pct >= 90 %}A+
+                        {% elif pct >= 80 %}A
+                        {% elif pct >= 70 %}B
+                        {% elif pct >= 60 %}C
+                        {% elif pct >= 50 %}D
+                        {% else %}F{% endif %}
+                    </strong>
+                </span>
+            </div>
+
+            <div class="test-card-body">
+                {% for score in test_score.scores %}
+
+                {% set s = score.score %}
+
+                {% if s == 10 %}
+                    {% set verdict = "Perfect Answer" %}
+                    {% set verdict_class = "verdict-excellent" %}
+                    {% set pill_class = "score-10" %}
+                    {% set bar_class = "bar-10" %}
+                {% elif s >= 8 %}
+                    {% set verdict = "Excellent" %}
+                    {% set verdict_class = "verdict-excellent" %}
+                    {% set pill_class = "score-hi" %}
+                    {% set bar_class = "bar-hi" %}
+                {% elif s >= 6 %}
+                    {% set verdict = "Good" %}
+                    {% set verdict_class = "verdict-good" %}
+                    {% set pill_class = "score-hi" %}
+                    {% set bar_class = "bar-hi" %}
+                {% elif s >= 4 %}
+                    {% set verdict = "Partial" %}
+                    {% set verdict_class = "verdict-partial" %}
+                    {% set pill_class = "score-md" %}
+                    {% set bar_class = "bar-md" %}
+                {% elif s >= 2 %}
+                    {% set verdict = "Weak" %}
+                    {% set verdict_class = "verdict-weak" %}
+                    {% set pill_class = "score-lo" %}
+                    {% set bar_class = "bar-lo" %}
+                {% elif s == 1 %}
+                    {% set verdict = "Minimal" %}
+                    {% set verdict_class = "verdict-weak" %}
+                    {% set pill_class = "score-lo" %}
+                    {% set bar_class = "bar-lo" %}
+                {% else %}
+                    {% set verdict = "No Credit" %}
+                    {% set verdict_class = "verdict-zero" %}
+                    {% set pill_class = "score-0" %}
+                    {% set bar_class = "bar-0" %}
+                {% endif %}
+
+                <div class="q-row">
+                    <div class="q-number">Question {{ loop.index }} of {{ test_score.scores|length }}</div>
+                    <div class="q-text">{{ score.question }}</div>
+
+                    <div class="answer-cols">
+                        <div class="answer-block answer-expected">
+                            <div class="answer-label label-expected">📚 Expected Answer</div>
+                            <div class="answer-text">{{ score.expected_answer }}</div>
+                        </div>
+                        <div class="answer-block answer-student">
+                            <div class="answer-label label-student">✏️ Your Answer</div>
+                            <div class="answer-text">
+                                {% if score.student_answer %}
+                                    {{ score.student_answer }}
+                                {% else %}
+                                    <em style="color:#6b7280;">No answer submitted</em>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="score-section">
+                        <span class="score-pill {{ pill_class }}">{{ s }}</span>
+                        <div class="score-right">
+                            <div class="score-bar-wrap">
+                                <div class="score-bar {{ bar_class }}"
+                                     style="width: {{ s * 10 }}%"
+                                     data-score="{{ s }}"></div>
+                            </div>
+                            <div class="score-label">
+                                <span class="verdict {{ verdict_class }}">{{ verdict }}</span>
+                                <span>{{ s }} / 10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+            </div>
+        </div>
+
+        <div style="text-align:right; margin-top:-16px; margin-bottom:24px;">
+            <a href="{{ url_for('student_take_test') }}" class="retake-btn">🔄 Retake a Test</a>
+        </div>
+
+    {% endfor %}
+
+    {% if not ns.has_scores %}
+    <div class="no-tests">
+        <div>📭</div>
+        <h5 style="color:#94a3b8;">No test results yet.</h5>
+        <p style="color:#64748b; font-size:0.9rem;">Take a test and your AI-evaluated scores will appear here.</p>
+        <a href="{{ url_for('student_take_test') }}" style="color:#a78bfa; font-weight:600;">Take a Test →</a>
     </div>
+    {% endif %}
+
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // Show actual data and hide loader rows
-        $('.modal').on('shown.bs.modal', function () {
-            $(this).find('.skeleton-row').hide();
-            $(this).find('.data-row').show();
+    // Animate score bars on load
+    window.addEventListener('load', function () {
+        document.querySelectorAll('.score-bar').forEach(function (bar) {
+            const target = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(function () { bar.style.width = target; }, 100);
         });
     });
 </script>
