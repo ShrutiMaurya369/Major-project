@@ -20,7 +20,6 @@
         }
         .page-header h2 { margin: 0; font-size: 1.5rem; }
 
-        /* Add student form */
         .add-form {
             background: #1f2937;
             border: 1px solid #374151;
@@ -29,16 +28,10 @@
             margin-bottom: 24px;
         }
         .add-form h5 { color: #a78bfa; margin-bottom: 14px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
-        .add-form .form-control {
-            background: #111827;
-            border: 1px solid #374151;
-            color: #e5e7eb;
-            border-radius: 6px;
-        }
+        .add-form .form-control { background: #111827; border: 1px solid #374151; color: #e5e7eb; border-radius: 6px; }
         .add-form .form-control:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,0.2); background: #111827; color: #e5e7eb; }
         .add-form .form-control::placeholder { color: #6b7280; }
 
-        /* Table */
         .table-wrap { background: #1f2937; border-radius: 10px; overflow: hidden; border: 1px solid #374151; }
         .table { margin: 0; }
         .table thead th { background: #111827; color: #a78bfa; border-color: #374151; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; padding: 14px 16px; }
@@ -48,15 +41,16 @@
 
         .score-badge {
             display: inline-block;
-            background: #065f46;
-            color: #6ee7b7;
             border-radius: 20px;
             padding: 3px 12px;
             font-size: 0.85rem;
             font-weight: 600;
         }
+        .score-high   { background: #065f46; color: #6ee7b7; }
+        .score-mid    { background: #78350f; color: #fcd34d; }
+        .score-low    { background: #450a0a; color: #fca5a5; }
+        .score-zero   { background: #1f2937; color: #6b7280; border: 1px solid #374151; }
 
-        /* Buttons */
         .btn-info    { background: #0369a1; border: none; }
         .btn-primary { background: #4f46e5; border: none; }
         .btn-danger  { background: #b91c1c; border: none; }
@@ -64,7 +58,6 @@
         .btn-primary:hover { background: #6366f1; }
         .btn-danger:hover  { background: #dc2626; }
 
-        /* Modal */
         .modal-content { background: #1f2937; color: #e5e7eb; border: 1px solid #374151; }
         .modal-header  { border-bottom: 1px solid #374151; }
         .modal-footer  { border-top: 1px solid #374151; }
@@ -72,6 +65,11 @@
         .modal .form-control { background: #111827; border-color: #374151; color: #e5e7eb; }
         .modal .form-control:focus { border-color: #7c3aed; box-shadow: none; background: #111827; color: #e5e7eb; }
         .close { color: #9ca3af; }
+
+        .stats-row { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+        .stat-card { background: #1f2937; border: 1px solid #374151; border-radius: 8px; padding: 14px 20px; min-width: 140px; }
+        .stat-card .label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card .value { font-size: 1.6rem; font-weight: 600; color: #e5e7eb; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -97,6 +95,18 @@
 
     <div class="page-header">
         <h2>👩‍🎓 Students</h2>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="label">Total Students</div>
+            <div class="value">{{ students|length }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Evaluated Students</div>
+            <div class="value">{{ students|selectattr(3, 'gt', 0)|list|length }}</div>
+        </div>
     </div>
 
     <!-- Add Student -->
@@ -125,22 +135,35 @@
                     <th>ID</th>
                     <th>Username</th>
                     <th>Password</th>
-                    <th>Total Score</th>
+                    <th>Total AI Score</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for student in students %}
+                {% set total = student[3] if student|length > 3 else 0 %}
                 <tr>
                     <td>{{ student[0] }}</td>
                     <td>{{ student[1] }}</td>
-                    <td>{{ student[2] }}</td>
-                    <td><span class="score-badge">{{ student[3] if student|length > 3 else 0 }}</span></td>
+                    <td><span style="color:#6b7280;">••••••</span></td>
+                    <td>
+                        {% if total == 0 %}
+                            <span class="score-badge score-zero">0</span>
+                        {% elif total < 30 %}
+                            <span class="score-badge score-low">{{ total }}</span>
+                        {% elif total < 70 %}
+                            <span class="score-badge score-mid">{{ total }}</span>
+                        {% else %}
+                            <span class="score-badge score-high">{{ total }}</span>
+                        {% endif %}
+                    </td>
                     <td>
                         <a href="{{ url_for('view_student_scores', student_id=student[0]) }}" class="btn btn-info btn-sm mr-1">View Scores</a>
-                        <button type="button" class="btn btn-primary btn-sm mr-1" data-toggle="modal" data-target="#updateModal{{ student[0] }}">Update</button>
+                        <button type="button" class="btn btn-primary btn-sm mr-1"
+                                data-toggle="modal" data-target="#updateModal{{ student[0] }}">Update</button>
                         <form action="{{ url_for('delete_student', student_id=student[0]) }}" method="post" style="display:inline-block;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this student?')">Delete</button>
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Delete this student and all their scores?')">Delete</button>
                         </form>
                     </td>
                 </tr>
@@ -160,8 +183,8 @@
                                         <input type="text" class="form-control" name="username" value="{{ student[1] }}" required>
                                     </div>
                                     <div class="form-group">
-                                        <label>Password</label>
-                                        <input type="password" class="form-control" name="password" value="{{ student[2] }}" required>
+                                        <label>New Password</label>
+                                        <input type="password" class="form-control" name="password" placeholder="Enter new password" required>
                                     </div>
                                     <button class="btn btn-primary">Save Changes</button>
                                 </form>

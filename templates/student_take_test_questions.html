@@ -49,15 +49,28 @@
             border-radius: 8px;
             color: #e0e0e0;
             width: 100%;
-            min-height: 100px;
+            min-height: 120px;
             padding: 12px 14px;
             font-size: 0.95rem;
             resize: vertical;
             transition: border-color 0.2s;
             outline: none;
+            display: block;
         }
-        textarea.answer-box:focus { border-color: #a78bfa; box-shadow: 0 0 0 3px rgba(167,139,250,0.15); }
+        textarea.answer-box:focus {
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 3px rgba(167,139,250,0.15);
+        }
         textarea.answer-box::placeholder { color: #555; }
+
+        .char-count {
+            font-size: 0.75rem;
+            color: #666;
+            text-align: right;
+            margin-top: 4px;
+        }
+        .char-count.good { color: #6ee7b7; }
+        .char-count.warn { color: #fcd34d; }
 
         .submit-bar {
             background: #16213e;
@@ -70,6 +83,7 @@
             margin-top: 10px;
         }
         .submit-bar span { color: #888; font-size: 0.9rem; }
+
         .btn-submit {
             background: linear-gradient(135deg, #7c3aed, #a78bfa);
             border: none;
@@ -83,16 +97,67 @@
         }
         .btn-submit:hover  { opacity: 0.9; transform: translateY(-1px); }
         .btn-submit:active { transform: translateY(0); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
+        .ai-note {
+            background: #0f3460;
+            border: 1px solid #1e4a8a;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #93c5fd;
         }
-        .empty-state i { font-size: 3rem; margin-bottom: 16px; color: #333; }
+        .ai-note strong { color: #a78bfa; }
+
+        .submitting-overlay {
+            display: none;
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #fff;
+            font-size: 1.1rem;
+        }
+        .submitting-overlay.active { display: flex; }
+        .spinner {
+            width: 56px; height: 56px;
+            border: 5px solid #333;
+            border-top-color: #a78bfa;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 20px;
+        }
+        .overlay-steps {
+            color: #a0a0c0;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            text-align: center;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #666; }
+
+        .already-submitted {
+            background: #0f3460;
+            border: 1px solid #1e4a8a;
+            border-radius: 10px;
+            padding: 24px;
+            text-align: center;
+            color: #93c5fd;
+        }
+        .already-submitted a { color: #a78bfa; }
     </style>
 </head>
 <body>
+
+<div class="submitting-overlay" id="submitOverlay">
+    <div class="spinner"></div>
+    <span>🤖 Evaluating your answers with AI…</span>
+    <div class="overlay-steps">Using 9-technique NLP analysis — please wait, this may take a moment.</div>
+</div>
 
 <nav class="navbar navbar-expand-lg navbar-dark">
     <a class="navbar-brand" href="{{ url_for('student_home') }}">AES_ai</a>
@@ -113,37 +178,49 @@
 
     <div class="test-header">
         <h2>📝 Answer the Questions</h2>
-        <p>Write your answers in the boxes below. All fields are required before submitting.</p>
+        <p>Write detailed answers in your own words. The AI evaluates semantic meaning — not just keywords.</p>
     </div>
 
     {% if questions %}
-    <form method="POST" action="/submit_answers">
+
+    <div class="ai-note">
+        <strong>🧠 AI Evaluation Active:</strong>
+        Your answers will be scored using 9 NLP techniques including semantic similarity,
+        keyword analysis, and concept matching. Partial credit is awarded for partially correct answers.
+    </div>
+
+    <!-- FIX: form posts to /submit_answers with test_id -->
+    <form method="POST" action="{{ url_for('submit_answers') }}" id="testForm">
         <input type="hidden" name="test_id" value="{{ test_id }}">
 
         {% for question in questions %}
-        <div class="question-card">
+        <div class="question-card" id="card_{{ question[0] }}">
             <div class="question-header">Question {{ loop.index }} of {{ questions|length }}</div>
             <div class="question-body">
                 <div class="question-text">{{ question[1] }}</div>
                 <textarea
                     name="answer_{{ question[0] }}"
+                    id="ans_{{ question[0] }}"
                     class="answer-box"
-                    placeholder="Write your answer here…"
-                    required
+                    placeholder="Write your answer here — the more detail you provide, the better your score…"
+                    oninput="updateCount(this, {{ question[0] }})"
                 ></textarea>
+                <div class="char-count" id="count_{{ question[0] }}">0 words — start writing for a better score</div>
             </div>
         </div>
         {% endfor %}
 
         <div class="submit-bar">
-            <span>{{ questions|length }} question(s) — all required</span>
-            <button type="submit" class="btn-submit">Submit Answers</button>
+            <span>{{ questions|length }} question(s) — write as much detail as you can</span>
+            <button type="submit" class="btn-submit" id="submitBtn">
+                Submit &amp; Evaluate ✓
+            </button>
         </div>
     </form>
 
     {% else %}
     <div class="empty-state">
-        <div>📭</div>
+        <div style="font-size:3rem;">📭</div>
         <h5 style="color:#aaa; margin-top:12px;">No questions found for this test.</h5>
         <a href="{{ url_for('student_take_test') }}" style="color:#a78bfa;">← Back to tests</a>
     </div>
@@ -154,5 +231,30 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function updateCount(textarea, qid) {
+        const countEl = document.getElementById('count_' + qid);
+        if (!countEl) return;
+        const words = textarea.value.trim() ? textarea.value.trim().split(/\s+/).length : 0;
+        const chars = textarea.value.length;
+        countEl.textContent = words + ' word' + (words !== 1 ? 's' : '') + ' (' + chars + ' characters)';
+        // Color feedback
+        countEl.className = 'char-count';
+        if (words >= 20) countEl.classList.add('good');
+        else if (words >= 5) countEl.classList.add('warn');
+    }
+
+    const form = document.getElementById('testForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Allow empty answers — they get score 0, don't block submission
+            // Show overlay and disable button
+            document.getElementById('submitOverlay').classList.add('active');
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting…';
+        });
+    }
+</script>
 </body>
 </html>

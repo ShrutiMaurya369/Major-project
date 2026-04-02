@@ -1,0 +1,14 @@
+# requirements.txt
+# Install with: pip install -r requirements.txt
+
+flask
+flask-mysqldb
+mysqlclient
+
+# AI evaluation
+google-generativeai>=0.5.0
+
+# Local fallback evaluator
+scikit-learn
+sentence-transformers
+torch

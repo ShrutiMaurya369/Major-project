@@ -3,57 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Test Panel</title>
+    <title>Teacher Test Panel — AES_ai</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
+
+        .navbar { background: #1e293b !important; border-bottom: 1px solid #334155; }
+        .navbar-brand { color: #a78bfa !important; font-weight: 700; }
+        .nav-link { color: #cbd5e1 !important; }
+        .nav-link:hover { color: #a78bfa !important; }
+
+        .page-header {
+            margin: 28px 0 22px;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-left: 4px solid #a78bfa;
+            border-radius: 10px;
+        }
+        .page-header h2 { margin: 0; color: #f1f5f9; }
+        .page-header small { color: #94a3b8; }
+
+        .test-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .test-card-header {
+            background: #16213e;
+            padding: 14px 20px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .test-card-header h5 { margin: 0; color: #e2e8f0; font-size: 1rem; font-weight: 600; }
+
+        .test-card-body { padding: 20px; }
+
+        /* Question table */
+        .q-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .q-table th {
+            background: #0f172a;
+            color: #a78bfa;
+            padding: 10px 14px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #334155;
+            text-align: left;
+        }
+        .q-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #1e293b;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            vertical-align: top;
+        }
+        .q-table tr:last-child td { border-bottom: none; }
+        .q-table tr:hover td { background: #1a2744; }
+
+        .answer-text-preview {
+            color: #94a3b8;
+            font-size: 0.82rem;
+            max-width: 320px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Add question form */
+        .add-question-form {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+        .add-question-form label {
+            color: #a78bfa;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .add-question-form .form-control {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            border-radius: 8px;
+        }
+        .add-question-form .form-control:focus {
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 2px rgba(167,139,250,0.2);
+            background: #1e293b;
+            color: #e2e8f0;
+        }
+        .add-question-form .form-control::placeholder { color: #475569; }
+
+        .btn-add-q {
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            border: none;
+            color: #fff;
+            padding: 9px 22px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-add-q:hover { opacity: 0.9; }
+
+        .btn-view {
+            background: #0369a1;
+            border: none;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-view:hover { background: #0284c7; color: #fff; text-decoration: none; }
+
+        .btn-delete-q {
+            background: #b91c1c;
+            border: none;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            cursor: pointer;
+        }
+        .btn-delete-q:hover { background: #dc2626; }
+
+        .no-questions {
+            text-align: center;
+            padding: 24px;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        .back-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            padding: 8px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .back-btn:hover { background: #253047; color: #e2e8f0; text-decoration: none; }
+    </style>
 </head>
-
 <body>
-<div class="container mt-5">
-    <h2>Existing Tests</h2>
 
-    <table class="table table-bordered mt-3">
-        <thead>
-            <tr>
-                <th>Test ID</th>
-                <th>Test Name</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="{{ url_for('teacher_home') }}">AES_ai</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('teacher_home') }}">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('teacher_view_score') }}">Student Scores</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('teacher_logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
 
-        <tbody>
+<div class="container py-4">
+
+    <div class="page-header">
+        <h2>📋 Test Management Panel</h2>
+        <small>Add questions and expected answers to your tests.</small>
+    </div>
+
+    {% if tests %}
         {% for test in tests %}
-        <tr>
-            <td>{{ test.test_id }}</td>
-            <td>{{ test.test_name }}</td>
-            <td>
-                <a href="{{ url_for('view_teacher_test_questions', test_id=test.test_id) }}" class="btn btn-info mb-2">
-                    View Questions
+        <div class="test-card">
+            <div class="test-card-header">
+                <h5>📄 {{ test.test_name }}</h5>
+                <a href="{{ url_for('view_teacher_test_questions', test_id=test.test_id) }}" class="btn-view">
+                    Manage Questions →
                 </a>
+            </div>
+            <div class="test-card-body">
 
-                <!-- 🔥 ADD QUESTION FORM -->
-                <form action="/add_question" method="POST" class="mt-2">
-                    <input type="hidden" name="test_id" value="{{ test.test_id }}">
+                <!-- Existing Questions Table -->
+                {% if test.questions %}
+                <table class="q-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Question</th>
+                            <th>Expected Answer</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for q in test.questions %}
+                        <tr>
+                            <td style="color:#64748b; width:40px;">{{ loop.index }}</td>
+                            <td>{{ q.question_text }}</td>
+                            <td>
+                                <div class="answer-text-preview" title="{{ q.expected_answer }}">
+                                    {{ q.expected_answer }}
+                                </div>
+                            </td>
+                            <td>
+                                <!-- FIX: Delete posts to the correct route with test_id -->
+                                <form method="POST"
+                                      action="{{ url_for('view_teacher_test_questions', test_id=test.test_id) }}"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Delete this question?')">
+                                    <input type="hidden" name="question_id" value="{{ q.question_id }}">
+                                    <button type="submit" name="delete_question" class="btn-delete-q">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="no-questions">No questions yet — add one below.</div>
+                {% endif %}
 
-                    <input type="text" name="question" class="form-control mb-2"
-                           placeholder="Enter Question" required>
+                <!-- Add Question Form -->
+                <!-- FIX: Posts to correct route view_teacher_test_questions with test_id -->
+                <div class="add-question-form">
+                    <form method="POST"
+                          action="{{ url_for('view_teacher_test_questions', test_id=test.test_id) }}">
+                        <div class="form-group mb-3">
+                            <label>New Question</label>
+                            <input type="text"
+                                   class="form-control"
+                                   name="question_text"
+                                   placeholder="Enter the question text…"
+                                   required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Expected Answer</label>
+                            <textarea class="form-control"
+                                      name="expected_answer"
+                                      rows="3"
+                                      placeholder="Enter the model answer — this is what students will be evaluated against…"
+                                      required></textarea>
+                        </div>
+                        <button type="submit" name="add_question" class="btn-add-q">
+                            + Add Question
+                        </button>
+                    </form>
+                </div>
 
-                    <textarea name="expected_answer" class="form-control mb-2"
-                              placeholder="Enter Expected Answer" required></textarea>
-
-                    <button type="submit" class="btn btn-success btn-sm">
-                        Add Question
-                    </button>
-                </form>
-
-            </td>
-        </tr>
+            </div>
+        </div>
         {% endfor %}
-        </tbody>
-    </table>
+    {% else %}
+    <div style="text-align:center; padding: 60px 20px; color: #475569;">
+        <div style="font-size:3rem;">📂</div>
+        <h5 style="color:#94a3b8; margin-top:12px;">No tests found.</h5>
+        <p>Go to <a href="{{ url_for('teacher_home') }}" style="color:#a78bfa;">Teacher Home</a> to create a test first.</p>
+    </div>
+    {% endif %}
 
-    <a href="{{ url_for('teacher_home') }}" class="btn btn-primary">
-        Back to Teacher Home
-    </a>
+    <a href="{{ url_for('teacher_home') }}" class="back-btn">← Back to Teacher Home</a>
+
 </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
